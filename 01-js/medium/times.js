@@ -9,5 +9,10 @@ There is no automated test for this one, this is more for you to understand time
 */
 
 function calculateTime(n) {
-    return 0.01;
+  let today = new Date("December 17, 1995 03:24:00");
+  let hours = today.getHours();
+  let minutes = today.getMinutes();
+  let seconds = today.getSeconds();
+  let time_in_secs = seconds + minutes * 60 + hours * 60 * 60;
+  console.log(time_in_secs);
 }
