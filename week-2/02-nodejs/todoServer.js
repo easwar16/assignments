@@ -39,11 +39,95 @@
 
   Testing the server - run `npm run test-todoServer` command in terminal
  */
-  const express = require('express');
-  const bodyParser = require('body-parser');
-  
-  const app = express();
-  
-  app.use(bodyParser.json());
-  
-  module.exports = app;
+const { error } = require("console");
+const express = require("express");
+const fs = require("fs");
+// const bodyParser = require("body-parser");
+
+const app = express();
+app.use(express.json());
+app.get("/todos", (req, res) => {
+  fs.readFile("./todos.json", (error, data) => {
+    if (error)
+      res
+        .status(500)
+        .send(
+          "Error: something wrong happened while reading the todos dB json file"
+        );
+    let todoItems = JSON.parse(data);
+    res.status(200).send(todoItems);
+  });
+});
+
+app.get("/todos/:id", (req, res) => {
+  fs.readFile("./todos.json", (error, data) => {
+    let id = req.params.id;
+    if (error)
+      res
+        .status(500)
+        .send(
+          "Error: something wrong happened while reading the todos dB json file"
+        );
+    let todoItems = JSON.parse(data);
+    if (!(id in todoItems))
+      res
+        .send(404)
+        .send(
+          `Requested To-do with id ${id} not in the DB. Give the To-do valid id`
+        );
+    res.status(200).send(todoItems[id.toString()]);
+    todoItems.res.status(200).send(todoItems);
+  });
+});
+app.post("/todos", (req, res) => {
+  let todo = req.body;
+  let uniqueId = Date.now().toString() + Math.random().toString().slice(-2);
+  let todoItems = fs.fileReadSync("./todos.json", "utf-8");
+  todoItems = JSON.parse(todoItems);
+  while (uniqueId in todoItems) {
+    uniqueId = Date.now().toString() + Math.random().toString().slice(-2);
+  }
+  body["id"] = uniqueId;
+  todoItems[uniqueId] = body;
+  fs.writeFile("./todos.json", JSON.stringify(todoItems), "utf-8", (error) => {
+    if (error)
+      res
+        .status(500)
+        .send(
+          "Error: Encoundering an error while storing the todo on json File"
+        );
+  });
+  res
+    .status(200)
+    .send("The Todo with id" + { id: uniqueId } + "was successfully stored");
+});
+app.put("/todos/:id", (req, res) => {
+  todoItems = fs.readFileSync("./todos.json", "utf-8");
+  todoItems = JSON.parse(todoItems);
+  id = req.params.id;
+  if (!(id in todoItems)) res.status(404).send("ID not found");
+  for (i of Object.keys(body)) {
+    todoItems[id][i] = body[i];
+  }
+  fs.writeFileSync(
+    "./todos.json",
+    JSON.stringify(todoItems),
+    "utf-8",
+    (error) => {
+      if (error)
+        res
+          .status(500)
+          .send(
+            "Error : encountered and error while writing the todo onto the todos.json File DB"
+          );
+    }
+  );
+  res.status(200).send("Record was updated");
+});
+app.get("*", () => {
+  res.status(404).send("Error : Route Not Found");
+}); // app.use(bodyParser.json());
+app.listen(3000, () => {
+  console.log("Listening on port 3000...");
+});
+module.exports = app;
